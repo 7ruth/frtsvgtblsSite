@@ -1,6 +1,6 @@
 /*globals $:false, appVars:false */
 
-(function () {
+function start() {
   var row = -1
   var col = 0
   var item = 0
@@ -44,7 +44,7 @@
      'height': '250px',
      'row': 0,
      'col': 0,
-     'constuctionAreaImagePath': 'data/images/instructionGameComponents/jpegImages/base.jpg'
+     'constuctionAreaImagePath': 'data/images/instructionGameComponents/optimizedImages/base.jpg'
     },
     {'id': 1,
      'name': 'supports',
@@ -52,7 +52,7 @@
      'height': '250px',
      'row': 0,
      'col': 1,
-     'constuctionAreaImagePath': 'data/images/instructionGameComponents/jpegImages/supportLegs.jpg'
+     'constuctionAreaImagePath': 'data/images/instructionGameComponents/optimizedImages/supportLegs.jpg'
     },
     {'id': 2,
      'name': 'top',
@@ -60,7 +60,7 @@
      'height': '250px',
      'row': 0,
      'col': 2,
-     'constuctionAreaImagePath': 'data/images/instructionGameComponents/jpegImages/top.jpg'
+     'constuctionAreaImagePath': 'data/images/instructionGameComponents/optimizedImages/top.jpg'
     },
     {'id': 3,
      'name': 'shell',
@@ -68,7 +68,7 @@
      'height': '250px',
      'row': 0,
      'col': 3,
-     'constuctionAreaImagePath': 'data/images/instructionGameComponents/jpegImages/shell.jpg'
+     'constuctionAreaImagePath': 'data/images/instructionGameComponents/optimizedImages/shell.jpg'
     },
     {'id': 4,
      'name': 'insert',
@@ -76,7 +76,7 @@
      'height': '250px',
      'row': 0,
      'col': 4,
-     'constuctionAreaImagePath': 'data/images/instructionGameComponents/jpegImages/insert.jpg'
+     'constuctionAreaImagePath': 'data/images/instructionGameComponents/optimizedImages/insert.jpg'
     },
     {'id': 5,
      'name': 'soil',
@@ -84,7 +84,7 @@
      'height': '250px',
      'row': 1.4,
      'col': 1,
-     'constuctionAreaImagePath': 'data/images/instructionGameComponents/jpegImages/bagOfEarth.jpg'
+     'constuctionAreaImagePath': 'data/images/instructionGameComponents/optimizedImages/bagOfEarth.jpg'
     },
     {'id': 6,
      'name': 'seed',
@@ -92,7 +92,7 @@
      'height': '250px',
      'row': 1.4,
      'col': 2,
-     'constuctionAreaImagePath': 'data/images/instructionGameComponents/jpegImages/transPlant.jpg'
+     'constuctionAreaImagePath': 'data/images/instructionGameComponents/optimizedImages/transPlant.jpg'
     },
     {'id': 7,
      'name': 'water',
@@ -100,13 +100,25 @@
      'height': '250px',
      'row': 1.4,
      'col': 3,
-     'constuctionAreaImagePath': 'data/images/instructionGameComponents/jpegImages/waterBottle.jpg'
+     'constuctionAreaImagePath': 'data/images/instructionGameComponents/optimizedImages/waterBottle.jpg'
     }
   ]
 
-  $(window).load(function () {
-      $('html').fadeIn('slow')
+  // smooth out loading
+  $('html').fadeIn('slow')
+  // on initial scroll implement lazy load
+  $(window).scroll(function () {
+    // lazy load images
+    $('.lazy').unveil(1000)
   })
+
+  // execute turntable to make main turntable load
+  var s = document.createElement('script')
+  s.type = 'text/javascript'
+  s.async = true
+  s.innerHTML = "$('#myTurntable').turntable({axis: 'x',reverse: true})"
+  var x = document.getElementsByTagName('script')[0]
+  x.parentNode.insertBefore(s, x)
 
   window.mobilecheck = function () {
     var check = false;
@@ -118,37 +130,47 @@
     $('.turntable .icon').css('display', 'none')
   })
 
-  var liString = ''
+  var liString = []
 
-  if (window.mobilecheck() == true) {
+  function loadTurnTableImage () {
+    $('.turntable ul').css('display', 'none')
+    $('#placeHolderImage').css('display', 'block')
+    $('#placeHolderImage').css('visibility', 'visible')
+    $('#loadingIcon').css('visibility', 'visible')
+
+    liString = []
     for (var i = 79; i > 1; i--) {
-      liString += '<li data-img-src="data/images/FNVTurnTable/frtsAndVgtblsTurntable-' + (i) + '.jpg"></li>'
+      // liString += '<li data-img-src="data/images/FNVTurnTable/frtsAndVgtblsTurntable-' + (i) + '.jpg"></li>'
+      var li = $('<li>').attr('data-img-src', 'data/images/FNVTurnTable/frtsAndVgtblsTurntable-' + (i) + '.jpg')
+      liString.push(li)
     }
     // append to the turntable div
     $('#myTurntable ul').append(liString)
     // initiate Turntable.js
     $('#myTurntable').turntable({
       axis: 'x',
-      reverse: false
+      reverse: true
     })
-    $('#turnTableClickMe').css('visibility', 'hidden')
-  } else {
-    // create turntable images (78 total images, fixed amount)
-    $('#myTurntable').on('click', function() {
-      for (var i = 1; i < 79; i++) {
-        liString += '<li data-img-src="data/images/FNVTurnTable/frtsAndVgtblsTurntable-' + (i) + '.jpg"></li>'
-      }
-      // append to the turntable div
-      $('#myTurntable ul').append(liString)
-      // initiate Turntable.js
-      $('#myTurntable').turntable({
-        axis: 'x',
-        reverse: false
+
+    // when all images finish loading, display everything again
+    $('#myTurntable').imagesLoaded(function () {
+      $('#placeHolderImage').css('display', 'none')
+      $('.turntable ul').css('display', 'block')
+      $('#loadingIcon').css('visibility', 'hidden')
+      $('.turntable .icon').css('display', 'block')
+      $('#myTurntable ul').on('touchend', function () {
+        $('.turntable .icon').css('display', 'none')
       })
-      $('#turnTableClickMe').css('visibility', 'hidden')
+      $('#myTurntable.turntable ul li img').css('animation', 'none')
     })
+
   }
 
+  $('#myTurntable').on('click touchend', function () {
+    if ($('#myTurntable ul li').length < 3) {
+      loadTurnTableImage()
+    }
+  })
 
   // help with buy link touch
   $('#buyLink').on('click', function () {
@@ -185,56 +207,33 @@
   // preload images for constructionArea (total of 8 images, fixed)
   var imgString = ''
   for (var i = 1; i < 9; i++) {
-    imgString += '<img id = ' + 'image' + i + ' src="data/images/instructionGameComponents/jpegImages/stage' + i + '.jpg">'
+    imgString += '<img id = ' + 'image' + i + ' src="data/images/instructionGameComponents/optimizedImages/stage' + i + '.jpg">'
   }
   $('#constructionArea').append(imgString)
   // Loop to create the game elements
   constructorGame.forEach(function (item, i) {
 
-  // 5 denotes amount of tiles that go into first box
+  // 5 denotes amount of tiles that go into first box, all other tiles go into extra materials block
     if (i < 5) {
-      $('#inTheBoxTileContainer').append(function () {
-        return $('<div>').html(item.name)
-          .attr('id', item.id)
-          .addClass('draggable')
-          .addClass('gameTile')
-          .addClass('lazy')
-          .css({
-            'display': 'inline-block',
-            'background-image': 'url(' + item.constuctionAreaImagePath + ')',
-            'background-size': 'contain'
-          })
-          .on('dragEnd', gameTileControl)
-      })
+      $('#inTheBoxTileContainer').append(
+        makeGameTile(item)
+      )
     } else {
-      $('#extraMaterialsTileContainer').append(function () {
-        return $('<div>').html(item.name)
-          .attr('id', item.id)
-          .addClass('draggable')
-          .addClass('gameTile')
-          .addClass('lazy')
-          .css({
-            'display': 'inline-block',
-            'background-image': 'url(' + item.constuctionAreaImagePath + ')',
-            'background-size': 'contain'
-          })
-          .on('dragEnd', gameTileControl)
-      })
+      $('#extraMaterialsTileContainer').append(
+        makeGameTile(item)
+      )
     }
   })
 
   // Initiate highlighting of blocks to start the game
   $('#' + gameTileHighlight).css({
-    '-moz-animation-duration': '1.5s',
-    '-webkit-animation-duration': '1.5s',
+    '-moz-animation-duration': '3.0s',
+    '-webkit-animation-duration': '3.0s',
     '-moz-animation-name': 'changeShadow',
     '-webkit-animation-name': 'changeShadow',
     '-moz-animation-iteration-count': 'infinite',
     '-webkit-animation-iteration-count': 'infinite'
   })
-
-  // lazy load images
-  $('img.lazy').lazyload()
 
   $(document).ready(function () {
     var $draggable = $('.draggable').draggabilly({
@@ -303,19 +302,185 @@
           $(e.target).parent().parent().find('.stats').remove()
           $(e.target).parent().parent().find('li:nth-of-type(1n+3)').css('display', 'none')
         }
-    }
-    )
+    })
+  // populate image gallery from a photo's folder // this loop is based on descriptions array which have images attached to each description.
+  var mediaGallery = [
+    {
+      media: 'img',
+      path: 'data/images/photoGalleryImages/frts&vgtbls.gif',
+      description: 'Old Jalapeno pepper in a frts+vgtbls set up (White shell coming soon).'
+    },
+    {
+      media: 'img',
+      path: 'data/images/photoGalleryImages/frts&vgtbls2.jpg',
+      description: 'Young Jalapeno pepper in a frts+vgtbls set up (Gold shell coming soon).'
+    },
+    {
+      media: 'turntable',
+      numberOfImages: 34,
+      firstImage: 'Picture1.jpg',
+      nameConvention: 'Picture',
+      path: 'data/images/photoGalleryImages/leafyGreensTurnTable',
+      description: 'Early growth progress of a variety of leafy green plants growing inside a Frts and Vgtbls set up'
+    },
+    {
+      media: 'img',
+      path: 'data/images/photoGalleryImages/gallery1EtsyListing2.jpg',
+      description: 'Frts and Vgtbls set up can be used for a wide variety of plants, including strawberries, peppers and potatoes.'
+    },
+    {
+      media: 'img',
+      path: 'data/images/photoGalleryImages/gallery2EtsyListing2.jpg',
+      description: 'Peppers thrive in Frts and Vgtbls set ups with almost no watering after initial set up.'
+    },
+    {
+      media: 'img',
+      path: 'data/images/photoGalleryImages/gallery3EtsyListing2.jpg',
+      description: 'Young strawberry plants inside Frts and Vgtbls set up.'
+    },
+    {
+      media: 'img',
+      path: 'data/images/photoGalleryImages/gallery4EtsyListing2.jpg',
+      description: 'Potato plants can grow to be several feet in height. A 2 months old potato inside Frts and Vgtbls set up.'
+    },
+    {
+      media: 'img',
+      path: 'data/images/photoGalleryImages/PrimeAnnotatedEtsyListing2.jpg',
+      description: '3 packs of Frts and Vgtbls set ups come with a $15 dollar discount.'
+    },
+  ]
+
+    mediaGallery.forEach(function (mediaItem, index) {
+      switch (mediaItem.media) {
+        case 'img':
+          $('#mediaGalleryContainer').append(
+            $('<div>')
+              .attr('id', index)
+              .addClass('mediaTile')
+              .append(
+                $('<img>').attr({
+                  'src': '',
+                  'data-src': mediaItem.path,
+                  'class': 'lazy'
+                })
+              )
+              .append(
+                $('<p>').html(mediaItem.description)
+              )
+          )
+          break
+        case 'turntable':
+        $('#mediaGalleryContainer').append(
+          $('<div>')
+            .attr('id', index)
+            .addClass('mediaTile')
+            .addClass('turntable')
+            .addClass('turntable2')
+            .attr('id','myTurtable' + index)
+            .append(
+              $('<img>')
+                .attr({
+                  'src': '',
+                  'data-src': mediaItem.path + '/' + mediaItem.firstImage,
+                  'class': 'lazy placeHolderImage'
+                })
+                .css({
+                  'display': 'none'
+                })
+            )
+            .append($('<img>')
+              .attr({
+              'class': 'loadingIcon',
+              'src': 'data/images/icons/loadingGear.gif'
+              })
+            )
+            .append($('<img>')
+              .attr({
+              'class': 'icon',
+              'src': 'data/images/icons/whiteSwipeIcon.png',
+              'alt': 'swipe image side to side to see frts and vgtbls set-up rotate 180 degrees in the image'
+              })
+            )
+            .append(
+              $('<ul>')
+                .append(
+                  $('<li>')
+                    .attr(
+                      'data-img-src', mediaItem.path + '/' + mediaItem.nameConvention + 1 + '.jpg'
+                    )
+                )
+            )
+            .append(
+              $('<p>').html(mediaItem.description)
+            )
+        )
+
+        $('#mediaGalleryContainer .mediaTile.turntable ul li').on('click', function(ev){
+          var target
+          if ($(ev.target)[0].tagName !== 'IMG') {
+            target = $(ev.target).find('img')
+          } else {
+            target = $(ev.target)
+          }
+          // hide the UL to avoid loading akwardness
+          target.parent().parent().css('display', 'none')
+          target.parent().parent().parent().find('#clickMe').css('visibility', 'hidden')
+          target.parent().parent().parent().find('img').css('visibility', 'visible')
+          target.parent().parent().parent().find('img').css('display', 'inherit')
+          target.parent().parent().parent().find('.loadingIcon').css('visibility', 'visible')
+          target.parent().parent().parent().find('.placeHolderImage').css({
+            'visibility': 'visible'
+          })
+
+          liString = []
+            for (var i = 2; i < mediaItem.numberOfImages; i++) {
+              // liString += '<li data-img-src="data/images/FNVTurnTable/frtsAndVgtblsTurntable-' + (i) + '.jpg"></li>'
+              var li = $('<li>').attr('data-img-src', mediaItem.path + '/' + mediaItem.nameConvention + i + '.jpg')
+              liString.push(li)
+            }
+            // append to the turntable div
+            target.parent().parent().parent().find('ul').append(liString)
+            var selectedEl = target;
+            // initiate Turntable.js
+            var selectedEl = target.parent().parent().parent()
+            target.parent().parent().parent().find('ul').imagesLoaded(function () {
+              selectedEl.find('.placeHolderImage').css('display', 'none')
+              selectedEl.parent().find('ul').css('display', 'block')
+              selectedEl.parent().find('.loadingIcon').css('visibility', 'hidden')
+              selectedEl.parent().find('.turntable .icon').css('display', 'block')
+              selectedEl.parent().find('ul').on('touchend', function () {
+                selectedEl.parent().find('.turntable .icon').css('display', 'none')
+              })
+              selectedEl.parent().find('.mediaTile.turntable img.icon').css('display', 'none')
+              selectedEl.parent().find('.turntable ul li img').css('animation', 'none')
+            })
+
+            $('.turntable' + index).turntable({
+              axis: 'x',
+              reverse: false
+            })
+
+        }).bind(mediaItem, index)
+
+        //to activate the first loaded image
+        $('.turntable' + index).turntable({
+          axis: 'x',
+          reverse: false
+        })
+        default:
+          // console.log('+_+')
+      }
+    })
+
+  // end of document.ready() function
   })
+
   // open links in a new tab
   $('a').on('click touchstart touch', function (e) {
     e.preventDefault()
     var win = window.open($(e.target).attr('href'), '_blank')
     win.focus()
   })
-
-  // $('html').on('click', function (e) {
-  //   console.log($(e.target).offset())
-  // })
 
   // Functions
   function gameTileControl () {
@@ -330,14 +495,14 @@
       // control the flow of the game, highlighting the next piece that needs to be dropped into the construction area
       gameTileHighlight += 1
       $('#' + gameTileHighlight).css({
-        '-moz-animation-duration': '1.5s',
-        '-webkit-animation-duration': '1.5s',
+        '-moz-animation-duration': '3.0s',
+        '-webkit-animation-duration': '3.0s',
         '-moz-animation-name': 'changeShadow',
         '-webkit-animation-name': 'changeShadow',
         '-moz-animation-iteration-count': 'infinite',
         '-webkit-animation-iteration-count': 'infinite'
       })
-// frost all tiles that are not in sequence until selected
+      // frost all tiles that are not in sequence until selected
       $('#constructionArea').css('border', 'none')
       $('#constructionArea').html($('#constructionArea').html().replace('Drag and Drop Here', ''))
       $('#constructionArea i').remove()
@@ -362,12 +527,28 @@
           'margin': '50px auto',
           'display': 'block',
         })
+        $('#' + gameTileHighlight).remove()
         $('section').css('margin-top','10px')
       }
     }
   }
 
-
-
+  function makeGameTile (item) {
+    return $('<div>').html('<p>' + item.name + '</p>')
+      .attr('id', item.id)
+      .addClass('draggable')
+      .addClass('gameTile')
+      .css({
+        'display': 'inline-block',
+        // 'background-image': 'url(' + item.constuctionAreaImagePath + ')',
+        'background-size': 'contain'
+      })
+      .on('dragEnd', gameTileControl)
+      .append(function () {
+        return $('<img>')
+          .addClass('lazy')
+          .attr('src', '')
+          .attr('data-src', item.constuctionAreaImagePath)
+      })
+  }
 }
-)()
