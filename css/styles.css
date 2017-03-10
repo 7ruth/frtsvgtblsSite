@@ -210,13 +210,14 @@ h2 {
 }
 
 .mediaTile.turntable ul li img {
-  width: 25% !important;
+  width: 300px !important;
   border-radius: 15px;
 }
 
 .turntable ul {
   height: 430px;
   padding: 0px;
+  padding-bottom: 45px !important;
   margin: 0px;
   width: 100%;
 }
@@ -262,7 +263,7 @@ h2 {
 .mediaTile .loadingIcon {
   width: 35%;
   top: 0%;
-  left: 36.5%;
+  left: 31.5%;
   position: absolute;
   visibility: hidden;
 }
@@ -432,8 +433,7 @@ ul h3 {
 }
 
 #mediaGalleryContainer .turntable img{
-  width: 25%;
-  height: 72%;
+  height: 68%;
   margin: 15px;
   border-radius: 5px;
 }
@@ -478,6 +478,26 @@ ul h3 {
 
   #placeHolderImage {
     width: 100%;
+  }
+
+  #mediaGalleryContainer .turntable img {
+    width: 70%;
+    height: auto;
+    margin-bottom: 125px;
+  }
+
+  .mediaTile {
+    margin-top: 200px;
+    padding-bottom: 300px;
+  }
+
+  .mediaTile .loadingIcon {
+    left: 12.5%;
+  }
+
+  .mediaTile p {
+    font-size: 60px;
+    padding: 0 100px;
   }
 
   #loadingIcon {
@@ -648,6 +668,12 @@ ul h3 {
 
   .mediaTile.turntable ul li img {
     width: 70% !important;
+  }
+
+  .mobileFix {
+    overflow:hidden !important;
+    overflow-y:hidden !important;
+    overflow-x:hidden !important;
   }
 
 }

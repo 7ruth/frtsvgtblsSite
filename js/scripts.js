@@ -1,42 +1,11 @@
 /*globals $:false, appVars:false */
 
 function start() {
+  var hash
   var row = -1
-  var col = 0
-  var item = 0
   var sumPrice = 0
   var arrayPrice = []
-  var sortedDataPoints = []
-  var gameTileHighlight = 0;
-  // get images that will be associated with each for easier understanding... etc...
-  var attributeCombinations = {
-    'shipping': ['red', 'Est. shipping costs'],
-    'outdoor': ['\u26c5', 'Can be placed outdoors'], // patio or green lawn
-    'electricity': ['\u26a1', 'Needs electricity'], // electric bolt
-    'pump': ['\u26f2', 'Includes a water pump'], // water spray
-    'lights': ['\ud83d\udca1', 'Includes a light'], // image of a grow lamp
-    'automation': ['\u23f0', 'Includes a timer'], // timer
-    'diy': ['\x94\xA8', 'This is a DIY set up'], // hammer and screwdriver
-    'waterEfficient': ['&#127754', 'Is water efficient'], // water recycle logo
-    'leafyPlants': ['\ud83c\udf3f', 'Can grow leafy plants'], // leafy plant, salad
-    'fruitPlants': ['&#127813', 'Can grow fruit plants'], // tomato plant
-    'vegetablePlants': ['\ud83c\udf3d', 'Can grow vegetable plants'], // cucumber
-    'rootPlants': ['\ud83c\udf60', 'Can grow root plants'], // beet
-    'treePlants': ['\ud83c\udf4b', 'Can grow trees'] // lemon tree
-  }
-  var colorMorphArray = [
-    'rgb(255,69,0)',
-    'rgb(255,140,0)',
-    'rgb(255,99,71)',
-    'rgb(255,0,0)',
-    'rgb(220,20,60)',
-    'rgb(250,128,114)',
-    'rgb(240,128,128)',
-    'rgb(219,112,147)',
-    'rgb(0,0,0)',
-    'rgb(255,255,255)'
-  ]
-
+  var gameTileHighlight = 0
   var constructorGame = [
     {'id': 0,
      'name': 'base',
@@ -104,8 +73,6 @@ function start() {
     }
   ]
 
-  // smooth out loading
-  $('html').fadeIn('slow')
   // on initial scroll implement lazy load
   $(window).scroll(function () {
     // lazy load images
@@ -177,21 +144,6 @@ function start() {
     location.href = "https://www.etsy.com/listing/494952182/frts-and-vgtbls-self-watering"
   })
 
- // get all the prices so we know the "playing field" size
-  appVars.dataPoints.forEach(function (dataPoint, i) {
-    sumPrice += dataPoint.price
-    arrayPrice.push(dataPoint.price)
-    sortedDataPoints.push(dataPoint)
-  })
-
-  arrayPrice.sort(function (a, b) { return a - b })
-
-  appVars.dataPoints.forEach(function (dataPoint) {
-    sortedDataPoints.splice(arrayPrice.indexOf(dataPoint.price), 1, dataPoint)
-// to indicate that previously value has been found, thus helping with entries with the same price
-    arrayPrice.splice(arrayPrice.indexOf(dataPoint.price), 1, 'sorted')
-  })
-
   // get the element
   var elem = document.getElementById('constructionArea')
   // get the distance scrolled on body (by default can be changed)
@@ -242,14 +194,7 @@ function start() {
 
     $('.handle').on('click touchstart touch', function (e) {
         if ($(e.target).parent().parent().css('width') !== '350px') {
-        // Match clicked id to the dataPoint object
-          var targetID = $(e.target).parent().parent().attr('id')
-          var result = $.grep(appVars.dataPoints, function (e) {
-            return e.id === targetID
-          })
-          var dataPoint = result[0]
           row = 0
-
           // height of the div dependent on the amount of attribute tiles that will be shown
           var h = (row + 1) * 80 + 50 + 'px'
           $(e.target).parent().parent().animate({
@@ -316,6 +261,7 @@ function start() {
       description: 'Young Jalapeno pepper in a frts+vgtbls set up (Gold shell coming soon).'
     },
     {
+      id:'LeafyGreensGrowthInteractiveTimeLapse',
       media: 'turntable',
       numberOfImages: 34,
       firstImage: 'Picture1.jpg',
@@ -372,16 +318,14 @@ function start() {
         case 'turntable':
         $('#mediaGalleryContainer').append(
           $('<div>')
-            .attr('id', index)
+            .attr('id', mediaItem.id)
             .addClass('mediaTile')
             .addClass('turntable')
             .addClass('turntable2')
-            .attr('id','myTurtable' + index)
             .append(
               $('<img>')
                 .attr({
-                  'src': '',
-                  'data-src': mediaItem.path + '/' + mediaItem.firstImage,
+                  'src': mediaItem.path + '/' + mediaItem.firstImage,
                   'class': 'lazy placeHolderImage'
                 })
                 .css({
@@ -424,7 +368,6 @@ function start() {
           }
           // hide the UL to avoid loading akwardness
           target.parent().parent().css('display', 'none')
-          target.parent().parent().parent().find('#clickMe').css('visibility', 'hidden')
           target.parent().parent().parent().find('img').css('visibility', 'visible')
           target.parent().parent().parent().find('img').css('display', 'inherit')
           target.parent().parent().parent().find('.loadingIcon').css('visibility', 'visible')
@@ -440,25 +383,26 @@ function start() {
             }
             // append to the turntable div
             target.parent().parent().parent().find('ul').append(liString)
-            var selectedEl = target;
-            // initiate Turntable.js
-            var selectedEl = target.parent().parent().parent()
-            target.parent().parent().parent().find('ul').imagesLoaded(function () {
-              selectedEl.find('.placeHolderImage').css('display', 'none')
-              selectedEl.parent().find('ul').css('display', 'block')
-              selectedEl.parent().find('.loadingIcon').css('visibility', 'hidden')
-              selectedEl.parent().find('.turntable .icon').css('display', 'block')
-              selectedEl.parent().find('ul').on('touchend', function () {
-                selectedEl.parent().find('.turntable .icon').css('display', 'none')
-              })
-              selectedEl.parent().find('.mediaTile.turntable img.icon').css('display', 'none')
-              selectedEl.parent().find('.turntable ul li img').css('animation', 'none')
-            })
 
+            var selectedEl = target.parent().parent().parent()
+            // initiate Turntable.js
             $('.turntable' + index).turntable({
               axis: 'x',
               reverse: false
             })
+
+            selectedEl.imagesLoaded(function () {
+              selectedEl.find('.placeHolderImage').css('display', 'none')
+              selectedEl.parent().find('.loadingIcon').css('visibility', 'hidden')
+              selectedEl.parent().find('.turntable .icon').css('display', 'block')
+              selectedEl.parent().find('.mediaTile.turntable img.icon').css('display', 'none')
+              selectedEl.parent().find('.turntable ul li img').css('animation', 'none')
+              selectedEl.parent().find('ul').css('display', 'block')
+              selectedEl.parent().find('ul').on('touchend', function () {
+                selectedEl.parent().find('.turntable .icon').css('display', 'none')
+              })
+            })
+
 
         }).bind(mediaItem, index)
 
@@ -471,6 +415,38 @@ function start() {
           // console.log('+_+')
       }
     })
+
+
+    window.addEventListener ?
+    window.addEventListener("load", onLoadHashHandler() ,false) :
+    window.attachEvent && window.attachEvent("onload", onLoadHashHandler());
+
+    function onLoadHashHandler () {
+      // Check if location hash is set (only want to see specific part of the page)
+      if (!handleWindowLocationHash()) {
+        // smooth out loading and reveal (if want to see specific part of the page then wait until that part is loaded for reveal)
+        $('html').fadeIn('slow')
+      } else {
+          if ($(hash).length) {
+            $('html').fadeIn('slow')
+            if (navigator.userAgent.match(/(iPod|iPhone|iPad|Android)/)) {
+              // $('body').scrollTop($(hash).offset().top - 70)
+              setTimeout(function() {
+                $('html, body').animate({
+                    scrollTop: $(hash).offset().top - 70
+                }, 800, function() {
+                    console.log("sup");
+                });
+              }, 1000)
+
+
+            } else {
+              $('html, body').scrollTop($(hash).offset().top - 70)
+            }
+          }
+      }
+    }
+
 
   // end of document.ready() function
   })
@@ -550,5 +526,14 @@ function start() {
           .attr('src', '')
           .attr('data-src', item.constuctionAreaImagePath)
       })
+  }
+
+  function handleWindowLocationHash () {
+    if (window.location.hash) {
+      // see if there is a hash location specified
+      hash = window.location.hash
+      return true
+    }
+    return false
   }
 }
